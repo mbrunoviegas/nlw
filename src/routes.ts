@@ -1,10 +1,11 @@
-import { Router, Request, Response } from 'express';
-
+import { Router } from 'express';
+import * as Constrollers from './controllers';
 const routes = Router();
 
-routes.get('/', (request: Request, response: Response) => {
-  response.status(200).send({ message: 'Hello World' });
+Object.values(Constrollers).forEach((controller) => {
+  const routeName =
+    '/' + controller.name.toLocaleLowerCase().replace('controller', '');
+  routes.use(routeName, new controller().routes);
 });
 
-routes.use('/', [toString, toString]);
 export default routes;
