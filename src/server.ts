@@ -3,6 +3,7 @@ import express from 'express';
 import routes from './routes';
 import dotenv from 'dotenv';
 import './database';
+import { createConnection } from 'typeorm';
 
 dotenv.config();
 const app = express();
