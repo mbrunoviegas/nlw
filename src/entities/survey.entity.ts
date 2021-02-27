@@ -1,4 +1,4 @@
-import { Entity, PrimaryColumn, Column } from 'typeorm';
+import { Entity, PrimaryColumn, Column, CreateDateColumn } from 'typeorm';
 import { v4 as uuid } from 'uuid';
 
 @Entity('surveys')
@@ -9,7 +9,7 @@ export class Survey {
   title: string;
   @Column()
   description: string;
-  @Column()
+  @CreateDateColumn()
   created_at: Date;
 
   constructor() {

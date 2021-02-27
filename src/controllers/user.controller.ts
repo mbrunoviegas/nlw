@@ -11,7 +11,15 @@ export class UserController {
     this.userService = new UserService();
   }
 
-  private async create(request: Request, response: Response) {
-    const userRepository = getCustomRepository(UserRepository)
-  }
+  create = async (request: Request, response: Response) => {
+    const { name, email } = request.body;
+    const result = await this.userService.createUser(name, email);
+    if (typeof result === 'boolean') {
+      response
+        .status(400)
+        .send({ statusCode: 400, message: 'Cliente existe.' });
+    } else {
+      response.status(200).send({ statusCode: 200, message: 'Usuário criado.' });
+    }
+  };
 }
