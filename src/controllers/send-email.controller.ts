@@ -20,8 +20,8 @@ export class SendEmailController {
     this.sendEmailService = new SendEmailService(connection);
   }
 
-  private async execute(request: Request, response: Response) {
-    const { email, survey_id } = request.body();
+  private execute = async (request: Request, response: Response) => {
+    const { email, survey_id } = request.body;
     const user: User = await this.userService.findUserByEmail(email);
     if (!user) {
       return response
@@ -42,5 +42,5 @@ export class SendEmailController {
     );
 
     return response.status(201).json(survey);
-  }
+  };
 }

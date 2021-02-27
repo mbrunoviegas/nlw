@@ -1,6 +1,7 @@
-import { AbstractRepository } from 'typeorm';
+import { AbstractRepository, EntityRepository } from 'typeorm';
 import { SurveyUser } from '../entities/survey-user.entity';
 
+@EntityRepository()
 export class SurveyUserRepository extends AbstractRepository<SurveyUser> {
   public async createAndSaveNewSurvey(
     user_id: string,
