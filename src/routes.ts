@@ -1,11 +1,24 @@
 import { Router } from 'express';
+import { Connection } from 'typeorm';
 import * as Constrollers from './controllers';
-const routes = Router();
 
-Object.values(Constrollers).forEach((controller) => {
-  const routeName =
-    '/' + controller.name.toLocaleLowerCase().replace('controller', '');
-  routes.use(routeName, new controller().routes);
-});
+export class Routes {
+  private routes = Router();
 
-export default routes;
+  constructor(connection: Connection) {
+    this.routes = Router();
+    this.createRoutes(connection);
+  }
+
+  private createRoutes(connection: Connection) {
+    Object.values(Constrollers).forEach((controller) => {
+      const routeName =
+        '/' + controller.name.toLocaleLowerCase().replace('controller', '');
+      this.routes.use(routeName, new controller(connection).routes);
+    });
+  }
+
+  get getRoutes(): Router {
+    return this.routes;
+  }
+}

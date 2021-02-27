@@ -3,15 +3,20 @@ import { User } from '../entities/user.entity';
 
 @EntityRepository(User)
 export class UserRepository extends AbstractRepository<User> {
-  public createNewUser(name: string, email: string): User {
-    return this.manager.create(User, { name, email });
+  public async createAndSaveNewUser(
+    name: string,
+    email: string
+  ): Promise<User> {
+    const newUser = this.manager.create(User, { name, email });
+    await this.manager.save(newUser);
+    return newUser;
   }
 
-  public saveNewUser(user: User) {
-    this.manager.save(user);
+  public async saveNewUser(user: User) {
+    await this.manager.save(user);
   }
 
-  public findByEmail(email: string): Promise<User> {
-    return this.manager.findOne(User, { email });
+  public async findByEmail(email: string): Promise<User> {
+    return await this.manager.findOne(User, { email });
   }
 }
