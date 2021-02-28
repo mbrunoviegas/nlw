@@ -1,20 +1,24 @@
+import { Transporter } from 'nodemailer';
 import { Connection } from 'typeorm';
 import { SurveyUser } from '../entities/survey-user.entity';
 import { SurveyUserRepository } from '../repositories/survey-user.repository';
-import { SurveyRepository } from '../repositories/survey.repository';
-import { UserRepository } from '../repositories/user.repository';
-
+import nodemailer from 'nodemailer';
+import { resolve } from 'path';
+import handlebars from 'handlebars';
+import fs from 'fs';
 export class SendEmailService {
-  private surveyRepository: SurveyRepository;
   private surveyUserRepository: SurveyUserRepository;
-  private userRepository: UserRepository;
+  private client: Transporter;
 
   constructor(connection: Connection) {
-    this.surveyRepository = connection.getCustomRepository(SurveyRepository);
     this.surveyUserRepository = connection.getCustomRepository(
       SurveyUserRepository
     );
-    this.userRepository = connection.getCustomRepository(UserRepository);
+    this.createClientTransporter();
+  }
+
+  public async findUnanswered(user_id: string): Promise<SurveyUser> {
+    return await this.surveyUserRepository.findUnansweredSurveys(user_id);
   }
 
   public async saveNewSurveyUser(
@@ -26,5 +30,40 @@ export class SendEmailService {
       survey_id
     );
     return surveyUser;
+  }
+
+  private createClientTransporter() {
+    nodemailer.createTestAccount().then((account) => {
+      this.client = nodemailer.createTransport({
+        host: account.smtp.host,
+        port: account.smtp.port,
+        secure: account.smtp.secure,
+        auth: {
+          user: account.user,
+          pass: account.pass,
+        },
+      });
+    });
+  }
+
+  public async execute(
+    to: string,
+    subject: string,
+    variables: object,
+    path: string
+  ) {
+    const templateFileContent = fs.readFileSync(path).toString('utf8');
+    const emailTemplateBars = handlebars.compile(templateFileContent);
+    const html = emailTemplateBars(variables);
+
+    const message = await this.client.sendMail({
+      to,
+      subject,
+      html,
+      from: 'NPS <noreplay@nps.com.br>',
+    });
+
+    console.log('Message sent: %s', message.messageId);
+    console.log('Preview URL: %s', nodemailer.getTestMessageUrl(message));
   }
 }

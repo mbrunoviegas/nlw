@@ -1,7 +1,9 @@
 import { Request, Response, Router } from 'express';
 import { Connection } from 'typeorm';
-import { convertToObject } from 'typescript';
 import { UserService } from '../services/user.service';
+import { UserSchema } from '../schemas/user.schema';
+import { AppError } from '../errors/app.error';
+
 export class UserController {
   public routes: Router = Router();
   private userService: UserService;
@@ -12,18 +14,18 @@ export class UserController {
   }
 
   private create = async (request: Request, response: Response) => {
+    try {
+      await UserSchema.validate(request.body, { abortEarly: false });
+    } catch (error) {
+      throw new AppError(error);
+    }
+
     const { name, email } = request.body;
     const result = await this.userService.createUser(name, email);
-    try {
-      if (typeof result === 'boolean') {
-        response
-          .status(400)
-          .json({ statusCode: 400, message: 'Cliente existe.' });
-      } else {
-        response.status(201).json(result);
-      }
-    } catch (error) {
-      console.log(error);
+    if (typeof result === 'boolean') {
+      throw new AppError('Cliente already exists');
+    } else {
+      response.status(201).json(result);
     }
   };
 }

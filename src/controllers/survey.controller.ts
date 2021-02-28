@@ -2,6 +2,7 @@ import { SurveyService } from '../services/survey.service';
 import { Router, Request, Response } from 'express';
 import { Survey } from '../entities/survey.entity';
 import { Connection } from 'typeorm';
+import { AppError } from '../errors/app.error';
 
 export class SurveyController {
   public routes = Router();
@@ -26,9 +27,7 @@ export class SurveyController {
     if (surveys.length > 0) {
       return response.status(200).json(surveys);
     } else {
-      return response
-        .status(404)
-        .json({ statusCode: 404, message: 'Não existem surveys.' });
+      throw new AppError('Surveys does not exist', 404);
     }
   };
 }

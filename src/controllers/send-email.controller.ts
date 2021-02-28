@@ -6,6 +6,8 @@ import { User } from '../entities/user.entity';
 import { SendEmailService } from '../services/send-email.service';
 import { SurveyService } from '../services/survey.service';
 import { UserService } from '../services/user.service';
+import { resolve } from 'path';
+import { AppError } from '../errors/app.error';
 
 export class SendEmailController {
   public routes = Router();
@@ -24,23 +26,48 @@ export class SendEmailController {
     const { email, survey_id } = request.body;
     const user: User = await this.userService.findUserByEmail(email);
     if (!user) {
-      return response
-        .status(400)
-        .json({ statusCode: 400, message: 'Invalid email!' });
+      throw new AppError('Invalid email');
     }
 
     const survey: Survey = await this.surveyService.findSurveyByID(survey_id);
-    if (!user) {
-      return response
-        .status(400)
-        .json({ statusCode: 400, message: 'Invalid survey!' });
+    if (!survey) {
+      throw new AppError('Invalid Survey');
+    }
+
+    const unansweredSurvey = await this.sendEmailService.findUnanswered(
+      user.id
+    );
+    const npsPath = resolve(__dirname, '..', 'views', 'emails', 'npsMail.hbs');
+    const variables = {
+      name: user.name,
+      title: survey.title,
+      description: survey.description,
+      id: '',
+      link: process.env.URL_MAIL,
+    };
+
+    if (unansweredSurvey) {
+      variables.id = unansweredSurvey.id;
+      await this.sendEmailService.execute(
+        email,
+        survey.title,
+        variables,
+        npsPath
+      );
+      return response.json(unansweredSurvey);
     }
 
     const surveyUser: SurveyUser = await this.sendEmailService.saveNewSurveyUser(
       user.id,
       survey_id
     );
-
-    return response.status(201).json(survey);
+    variables.id = surveyUser.id;
+    await this.sendEmailService.execute(
+      email,
+      survey.title,
+      variables,
+      npsPath
+    );
+    return response.status(201).json(surveyUser);
   };
 }
