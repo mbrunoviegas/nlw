@@ -1,23 +1,29 @@
 import request from "supertest";
-import { getConnection } from "typeorm";
+import { Connection } from "typeorm";
 import app from "../app";
-
 import createConnection from "../database";
 
 describe("Users", () => {
+  var connection: Connection;
+  var testRequest: request.SuperTest<request.Test>
+
   beforeAll(async () => {
-    const connection = await createConnection();
+    connection = await createConnection();
     await connection.runMigrations();
+    testRequest = request(app);
   });
 
   afterAll(async () => {
-    const connection = getConnection();
     await connection.dropDatabase();
     await connection.close();
   });
 
+  it('request should be defined', () => {
+    expect(testRequest).toBeDefined();
+  });
+
   it("Should be able to create a new user", async () => {
-    const response = await request(app).post("/users").send({
+    const response = await testRequest.post("/user").send({
       email: "user@example.com",
       name: "User Example",
     });
@@ -26,7 +32,7 @@ describe("Users", () => {
   });
 
   it("Should not be able to create a user with exists email", async () => {
-    const response = await request(app).post("/users").send({
+    const response = await testRequest.post("/user").send({
       email: "user@example.com",
       name: "User Example",
     });
