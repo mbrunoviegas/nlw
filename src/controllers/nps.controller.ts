@@ -1,14 +1,13 @@
 import { Request, Response, Router } from 'express';
-import { Connection } from 'typeorm';
 import { NpsService } from '../services/nps.service';
 
 export class NpsController {
   public routes = Router();
   private npsService: NpsService;
 
-  constructor(connection: Connection) {
+  constructor() {
     this.routes.get('/:survey_id', this.execute);
-    this.npsService = new NpsService(connection);
+    this.npsService = new NpsService();
   }
 
   private execute = async (request: Request, response: Response) => {

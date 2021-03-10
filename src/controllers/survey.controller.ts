@@ -1,16 +1,15 @@
-import { SurveyService } from '../services/survey.service';
-import { Router, Request, Response } from 'express';
+import { Request, Response, Router } from 'express';
 import { Survey } from '../entities/survey.entity';
-import { Connection } from 'typeorm';
 import { AppError } from '../errors/app.error';
+import { SurveyService } from '../services/survey.service';
 
 export class SurveyController {
   public routes = Router();
   private surveyService: SurveyService;
-  constructor(connection: Connection) {
+  constructor() {
     this.routes.post('/', this.create);
     this.routes.get('/', this.show);
-    this.surveyService = new SurveyService(connection);
+    this.surveyService = new SurveyService();
   }
 
   private create = async (request: Request, response: Response) => {

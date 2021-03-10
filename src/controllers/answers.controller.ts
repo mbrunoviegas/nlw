@@ -1,5 +1,4 @@
 import { Request, Response, Router } from 'express';
-import { Connection } from 'typeorm';
 import { AppError } from '../errors/app.error';
 import { AnswersService } from '../services/answers.service';
 
@@ -7,8 +6,8 @@ export class AnswersController {
   public routes = Router();
   private answersService: AnswersService;
 
-  constructor(connection: Connection) {
-    this.answersService = new AnswersService(connection);
+  constructor() {
+    this.answersService = new AnswersService();
     this.routes.get('/:value', this.execute);
   }
 

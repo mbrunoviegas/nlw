@@ -1,11 +1,11 @@
-import { Connection } from 'typeorm';
+import { getConnection } from 'typeorm';
 import { SurveyUser } from '../entities/survey-user.entity';
 import { SurveyUserRepository } from '../repositories/survey-user.repository';
 
 export class NpsService {
   private surveyUserRepository: SurveyUserRepository;
-  constructor(connection: Connection) {
-    this.surveyUserRepository = connection.getCustomRepository(
+  constructor() {
+    this.surveyUserRepository = getConnection().getCustomRepository(
       SurveyUserRepository
     );
   }
@@ -18,8 +18,6 @@ export class NpsService {
     const detractors = surveyUsers.filter((surveyUser) => {
       return surveyUser.value >= 0 && surveyUser.value <= 6;
     }).length;
-
-    console.log(detractors);
 
     const promoters = surveyUsers.filter((surveyUser) => {
       return surveyUser.value >= 9 && surveyUser.value <= 10;

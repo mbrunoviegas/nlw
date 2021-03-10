@@ -1,22 +1,22 @@
 import 'reflect-metadata';
-import express, { Express, Request, Response, NextFunction } from 'express';
+import express, { Express, Request, Response, NextFunction, Router } from 'express';
 import 'express-async-errors';
 import { Routes } from './routes';
-import createConnection from './database';
 import { AppError } from './errors/app.error';
+import createConnection from './database';
 
 class App {
   private express: Express;
+  private routes: Router;
 
   constructor() {
     this.express = express();
-    this.createRoutes();
+    this.express.use(express.json());
+    this.setupMiddlewares();
+    this.getRoutes();
   }
 
-  private async createRoutes() {
-    const routes = new Routes(await createConnection()).getRoutes;
-    this.express.use(express.json());
-    this.express.use(routes);
+  private async setupMiddlewares() {
     this.express.use(
       (
         err: Error,
@@ -36,6 +36,12 @@ class App {
         });
       }
     );
+  }
+
+  private async getRoutes() {
+    await createConnection();
+    this.routes = new Routes().getRoutes;
+    this.express.use(this.routes);
   }
 
   public getApp(): Express {

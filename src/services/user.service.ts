@@ -1,12 +1,12 @@
-import { Connection, getCustomRepository } from 'typeorm';
+import { getConnection } from 'typeorm';
 import { User } from '../entities/user.entity';
 import { UserRepository } from '../repositories/user.repository';
 
 export class UserService {
   private userRepository: UserRepository;
 
-  constructor(connection: Connection) {
-    this.userRepository = connection.getCustomRepository(UserRepository);
+  constructor() {
+    this.userRepository = getConnection().getCustomRepository(UserRepository);
   }
 
   public async createUser(

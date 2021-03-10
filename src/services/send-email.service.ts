@@ -1,17 +1,15 @@
-import { Transporter } from 'nodemailer';
-import { Connection } from 'typeorm';
+import fs from 'fs';
+import handlebars from 'handlebars';
+import nodemailer, { Transporter } from 'nodemailer';
+import { getConnection } from 'typeorm';
 import { SurveyUser } from '../entities/survey-user.entity';
 import { SurveyUserRepository } from '../repositories/survey-user.repository';
-import nodemailer from 'nodemailer';
-import { resolve } from 'path';
-import handlebars from 'handlebars';
-import fs from 'fs';
 export class SendEmailService {
   private surveyUserRepository: SurveyUserRepository;
   private client: Transporter;
 
-  constructor(connection: Connection) {
-    this.surveyUserRepository = connection.getCustomRepository(
+  constructor() {
+    this.surveyUserRepository = getConnection().getCustomRepository(
       SurveyUserRepository
     );
     this.createClientTransporter();

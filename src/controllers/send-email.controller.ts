@@ -1,13 +1,12 @@
-import { Router, Request, Response } from 'express';
-import { Connection } from 'typeorm';
+import { Request, Response, Router } from 'express';
+import { resolve } from 'path';
 import { SurveyUser } from '../entities/survey-user.entity';
 import { Survey } from '../entities/survey.entity';
 import { User } from '../entities/user.entity';
+import { AppError } from '../errors/app.error';
 import { SendEmailService } from '../services/send-email.service';
 import { SurveyService } from '../services/survey.service';
 import { UserService } from '../services/user.service';
-import { resolve } from 'path';
-import { AppError } from '../errors/app.error';
 
 export class SendEmailController {
   public routes = Router();
@@ -15,11 +14,11 @@ export class SendEmailController {
   private surveyService: SurveyService;
   private sendEmailService: SendEmailService;
 
-  constructor(connection: Connection) {
+  constructor() {
     this.routes.post('/', this.execute);
-    this.userService = new UserService(connection);
-    this.surveyService = new SurveyService(connection);
-    this.sendEmailService = new SendEmailService(connection);
+    this.userService = new UserService();
+    this.surveyService = new SurveyService();
+    this.sendEmailService = new SendEmailService();
   }
 
   private execute = async (request: Request, response: Response) => {

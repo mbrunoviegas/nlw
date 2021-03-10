@@ -1,12 +1,14 @@
-import { Connection, getCustomRepository } from 'typeorm';
+import { getConnection } from 'typeorm';
 import { Survey } from '../entities/survey.entity';
 import { SurveyRepository } from '../repositories/survey.repository';
 
 export class SurveyService {
   private surveyRepository: SurveyRepository;
 
-  constructor(connection: Connection) {
-    this.surveyRepository = connection.getCustomRepository(SurveyRepository);
+  constructor() {
+    this.surveyRepository = getConnection().getCustomRepository(
+      SurveyRepository
+    );
   }
 
   public async createSurvey(
