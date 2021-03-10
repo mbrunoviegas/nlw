@@ -1,5 +1,11 @@
 import 'reflect-metadata';
-import express, { Express, Request, Response, NextFunction, Router } from 'express';
+import express, {
+  Express,
+  Request,
+  Response,
+  NextFunction,
+  Router,
+} from 'express';
 import 'express-async-errors';
 import { Routes } from './routes';
 import { AppError } from './errors/app.error';
@@ -11,8 +17,13 @@ class App {
 
   constructor() {
     this.express = express();
+    this.setupApplication();
+  }
+
+  private async setupApplication() {
     this.express.use(express.json());
     this.setupMiddlewares();
+    await createConnection();
     this.getRoutes();
   }
 
@@ -39,7 +50,6 @@ class App {
   }
 
   private async getRoutes() {
-    await createConnection();
     this.routes = new Routes().getRoutes;
     this.express.use(this.routes);
   }
